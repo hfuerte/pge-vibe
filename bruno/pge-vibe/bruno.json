@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "pge-vibe",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}

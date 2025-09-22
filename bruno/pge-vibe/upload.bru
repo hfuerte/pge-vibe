@@ -1,0 +1,19 @@
+meta {
+  name: upload
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{base-url}}/api/usage/upload
+  body: multipartForm
+  auth: inherit
+}
+
+body:multipart-form {
+  file: @file(/Users/hfuerte/dev/pge/pge-vibe/pge_electric_usage_interval_data_Service 2_2_2025-01-01_to_2025-06-18.csv)
+}
+
+body:file {
+  file: @file(/Users/hfuerte/dev/pge/pge-vibe/pge_electric_usage_interval_data_Service 2_2_2025-01-01_to_2025-06-18.csv) @contentType(text/csv; charset=utf-8)
+}
