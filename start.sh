@@ -48,16 +48,16 @@ cd ..
 echo "✅ Build completed successfully!"
 echo ""
 echo "🌐 Starting applications..."
-echo "   Backend will run on: http://localhost:8080"
+echo "   Backend will run on: http://localhost:8181"
 echo "   Frontend will run on: http://localhost:3000"
-echo "   H2 Console: http://localhost:8080/h2-console"
+echo "   H2 Console: http://localhost:8181/h2-console"
 echo ""
 echo "Press Ctrl+C to stop both applications"
 echo ""
 
-# Start backend in background
+# Start backend in background with Tesseract library path
 echo "🔧 Starting Spring Boot backend..."
-mvn spring-boot:run &
+MAVEN_OPTS="-Djava.library.path=/opt/homebrew/lib:/opt/homebrew/Cellar/tesseract/5.5.1/lib" mvn spring-boot:run &
 BACKEND_PID=$!
 
 # Wait a moment for backend to start

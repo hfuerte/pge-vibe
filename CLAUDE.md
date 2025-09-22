@@ -33,7 +33,7 @@ Navigate to `/ui` directory first:
 - **Service**: `CsvParsingService.java` - CSV file processing logic
 
 ### Database Schema
-- **H2 In-Memory Database**: Accessible at `http://localhost:8080/h2-console`
+- **H2 In-Memory Database**: Accessible at `http://localhost:8181/h2-console`
   - JDBC URL: `jdbc:h2:mem:pgedb`
   - Username: `sa`
   - Password: (blank)
@@ -42,7 +42,7 @@ Navigate to `/ui` directory first:
   - `electric_usage` - Time-series usage data
 
 ### API Endpoints
-Base URL: `http://localhost:8080/api/usage`
+Base URL: `http://localhost:8181/api/usage`
 - **POST** `/upload` - Upload PGE CSV files
 - **GET** `/all` - Get all usage records
 - **GET** `/accounts` - Get all account information
@@ -54,7 +54,7 @@ Base URL: `http://localhost:8080/api/usage`
 ### Frontend Structure
 - **React 19** with React Router for navigation
 - **Development server**: Runs on `http://localhost:3000`
-- **API Integration**: Connects to backend at `http://localhost:8080`
+- **API Integration**: Connects to backend at `http://localhost:8181`
 
 ## CSV File Format
 The application expects PGE CSV files with:

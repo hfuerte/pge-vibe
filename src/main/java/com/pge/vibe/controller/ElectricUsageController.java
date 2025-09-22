@@ -1,11 +1,13 @@
 package com.pge.vibe.controller;
 
 import com.opencsv.exceptions.CsvException;
+import com.pge.vibe.dto.BillingPeriodInfo;
 import com.pge.vibe.entity.AccountInfo;
 import com.pge.vibe.entity.ElectricUsage;
 import com.pge.vibe.repository.AccountInfoRepository;
 import com.pge.vibe.repository.ElectricUsageRepository;
 import com.pge.vibe.service.CsvParsingService;
+import com.pge.vibe.service.PdfParsingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +31,9 @@ public class ElectricUsageController {
     
     @Autowired
     private CsvParsingService csvParsingService;
+
+    @Autowired
+    private PdfParsingService pdfParsingService;
     
     @GetMapping("/all")
     public ResponseEntity<List<ElectricUsage>> getAllUsage() {
@@ -77,6 +82,22 @@ public class ElectricUsageController {
         }
     }
     
+    @PostMapping("/upload-statement")
+    public ResponseEntity<BillingPeriodInfo> uploadPdfStatement(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body(
+                new BillingPeriodInfo(false, "Please select a PDF file to upload"));
+        }
+
+        if (!file.getContentType().equals("application/pdf")) {
+            return ResponseEntity.badRequest().body(
+                new BillingPeriodInfo(false, "Please upload a PDF file"));
+        }
+
+        BillingPeriodInfo result = pdfParsingService.extractBillingPeriod(file);
+        return ResponseEntity.ok(result);
+    }
+
     @DeleteMapping("/all")
     public ResponseEntity<Void> deleteAllUsage() {
         repository.deleteAll();

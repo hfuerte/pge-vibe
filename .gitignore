@@ -75,3 +75,4 @@ ca-cert.srl
 # Logs
 logs/
 *.log
+pge-vibe.log*

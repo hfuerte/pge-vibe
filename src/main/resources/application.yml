@@ -1,4 +1,9 @@
+server:
+  port: 8181
+
 spring:
+  application:
+    name: pge-vibe
   datasource:
     url: jdbc:h2:mem:pgedb
     driver-class-name: org.h2.Driver
@@ -23,3 +28,16 @@ spring:
 logging:
   level:
     com.pge.vibe: DEBUG
+    org.springframework.web: DEBUG
+    org.apache.pdfbox: WARN
+    net.sourceforge.tess4j: WARN
+  file:
+    name: logs/pge-vibe.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+  logback:
+    rollingpolicy:
+      max-file-size: 50MB
+      max-history: 30
+      total-size-cap: 1GB

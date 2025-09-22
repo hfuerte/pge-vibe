@@ -6,6 +6,7 @@ import Accounts from './pages/Accounts';
 import AllUsage from './pages/AllUsage';
 import UsageByAccount from './pages/UsageByAccount';
 import Upload from './pages/Upload';
+import PdfUpload from './pages/PdfUpload';
 import DeleteData from './pages/DeleteData';
 import Summary from './pages/Summary';
 
@@ -23,6 +24,7 @@ function App() {
             <Route path="/all-usage" element={<AllUsage />} />
             <Route path="/usage-by-account" element={<UsageByAccount />} />
             <Route path="/upload" element={<Upload />} />
+            <Route path="/pdf-upload" element={<PdfUpload />} />
             <Route path="/delete-data" element={<DeleteData />} />
             <Route path="/summary" element={<Summary />} />
           </Routes>

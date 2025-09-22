@@ -4,6 +4,8 @@ const Summary = () => {
   const [summaryData, setSummaryData] = useState({});
   const [expandedRow, setExpandedRow] = useState(null);
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [dateRange, setDateRange] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const getTimeBlock = (startTime) => {
     const hour = parseInt(startTime.substring(0, 2), 10);
@@ -15,18 +17,54 @@ const Summary = () => {
   };
 
   useEffect(() => {
-    fetch('/api/usage/all')
+    // Check for URL parameters from PDF upload
+    const urlParams = new URLSearchParams(window.location.search);
+    const startDate = urlParams.get('startDate');
+    const endDate = urlParams.get('endDate');
+    const billingDays = urlParams.get('billingDays');
+
+    if (startDate && endDate) {
+      setDateRange({ startDate, endDate, billingDays });
+    }
+
+    loadSummaryData();
+  }, []);
+
+  const loadSummaryData = (customDateRange = null) => {
+    setLoading(true);
+    const range = customDateRange || dateRange;
+
+    let url = '/api/usage/all';
+    if (range && range.startDate && range.endDate) {
+      // If we have a date range, we need to get data for all accounts in that range
+      // For now, we'll fetch all data and filter client-side
+      // In a real app, you might want to add a backend endpoint for date range filtering
+    }
+
+    fetch(url)
       .then(response => response.json())
       .then(data => {
-        const summary = data.reduce((acc, record) => {
-          const month = record.usageDate.substring(0, 7);
+        // Filter data by date range if specified
+        let filteredData = data;
+        if (range && range.startDate && range.endDate) {
+          const start = new Date(range.startDate.split('/').reverse().join('-'));
+          const end = new Date(range.endDate.split('/').reverse().join('-'));
+
+          filteredData = data.filter(record => {
+            const recordDate = new Date(record.usageDate);
+            return recordDate >= start && recordDate <= end;
+          });
+        }
+
+        const summary = filteredData.reduce((acc, record) => {
+          const period = range ? 'billing-period' : record.usageDate.substring(0, 7);
           const timeBlock = getTimeBlock(record.startTime);
           const hour = parseInt(record.startTime.substring(0, 2), 10);
 
           if (!timeBlock) return acc;
 
-          if (!acc[month]) {
-            acc[month] = {
+          if (!acc[period]) {
+            acc[period] = {
               part0: { totalKwh: 0, totalCost: 0, hourly: {} },
               part1: { totalKwh: 0, totalCost: 0, hourly: {} },
               part2: { totalKwh: 0, totalCost: 0, hourly: {} },
@@ -34,26 +72,40 @@ const Summary = () => {
             };
           }
 
-          if (!acc[month][timeBlock].hourly[hour]) {
-            acc[month][timeBlock].hourly[hour] = { totalKwh: 0, totalCost: 0 };
+          if (!acc[period][timeBlock].hourly[hour]) {
+            acc[period][timeBlock].hourly[hour] = { totalKwh: 0, totalCost: 0 };
           }
 
-          acc[month][timeBlock].totalKwh += record.usageKwh;
-          acc[month][timeBlock].totalCost += record.cost;
-          acc[month][timeBlock].hourly[hour].totalKwh += record.usageKwh;
-          acc[month][timeBlock].hourly[hour].totalCost += record.cost;
+          acc[period][timeBlock].totalKwh += record.usageKwh;
+          acc[period][timeBlock].totalCost += record.cost;
+          acc[period][timeBlock].hourly[hour].totalKwh += record.usageKwh;
+          acc[period][timeBlock].hourly[hour].totalCost += record.cost;
 
           return acc;
         }, {});
         setSummaryData(summary);
+        setLoading(false);
       })
-      .catch(error => console.error('Error fetching usage data:', error));
-  }, []);
+      .catch(error => {
+        console.error('Error fetching usage data:', error);
+        setLoading(false);
+      });
+  };
 
   const formatMonth = (monthStr) => {
+    if (monthStr === 'billing-period' && dateRange) {
+      return `Billing Period: ${dateRange.startDate} to ${dateRange.endDate} (${dateRange.billingDays} days)`;
+    }
     const [year, month] = monthStr.split('-');
     const date = new Date(year, month - 1);
     return date.toLocaleString('default', { month: 'long', year: 'numeric' });
+  };
+
+  const clearDateRange = () => {
+    setDateRange(null);
+    // Clear URL parameters
+    window.history.replaceState({}, document.title, window.location.pathname);
+    loadSummaryData(null);
   };
 
   const toggleRow = (rowId) => {
@@ -104,7 +156,32 @@ const Summary = () => {
 
   return (
     <div>
-      <h2>Monthly Usage Summary</h2>
+      <h2>{dateRange ? 'Billing Period Usage Summary' : 'Monthly Usage Summary'}</h2>
+
+      {dateRange && (
+        <div style={{
+          marginBottom: '20px',
+          padding: '15px',
+          backgroundColor: '#e7f3ff',
+          border: '1px solid #b3d9ff',
+          borderRadius: '4px'
+        }}>
+          <p><strong>Filtered by Billing Period:</strong> {dateRange.startDate} to {dateRange.endDate} ({dateRange.billingDays} days)</p>
+          <button onClick={clearDateRange} style={{
+            backgroundColor: '#6c757d',
+            color: 'white',
+            border: 'none',
+            padding: '6px 12px',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}>
+            Show All Monthly Data
+          </button>
+        </div>
+      )}
+
+      {loading && <p>Loading summary data...</p>}
+
       {Object.keys(summaryData).sort().map(month => (
         <div key={month}>
           <h3>{formatMonth(month)}</h3>

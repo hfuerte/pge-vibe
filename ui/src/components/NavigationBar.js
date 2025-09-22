@@ -10,6 +10,7 @@ const NavigationBar = () => {
         <li><Link to="/all-usage">All Usage</Link></li>
         <li><Link to="/usage-by-account">Usage By Account</Link></li>
         <li><Link to="/upload">Upload CSV</Link></li>
+        <li><Link to="/pdf-upload">Upload PDF Statement</Link></li>
         <li><Link to="/delete-data">Delete Data</Link></li>
         <li><Link to="/summary">Summary</Link></li>
       </ul>
